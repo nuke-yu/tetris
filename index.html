@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tetris</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-wrapper">
+    <h1>Tetris</h1>
+    <div id="game-container">
+      <canvas id="board" width="300" height="600"></canvas>
+      <div id="side-panel">
+        <div id="score-section">
+          <h3>分数</h3>
+          <p id="score-display">0</p>
+        </div>
+        <div id="preview-section">
+          <h3>下一个</h3>
+          <canvas id="preview" width="120" height="120"></canvas>
+        </div>
+        <div id="controls-section">
+          <h3>操作</h3>
+          <p>↑ 旋转</p>
+          <p>↓ 加速</p>
+          <p>← → 移动</p>
+          <p>空格 落底</p>
+        </div>
+      </div>
+    </div>
+    <div id="game-over-overlay" class="hidden">
+      <h2>Game Over</h2>
+      <p>得分：<span id="final-score">0</span></p>
+      <button id="restart-btn">重新开始</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
