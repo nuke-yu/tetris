@@ -5,13 +5,13 @@
 }
 
 body {
-  background: #fce4ec;
+  background: #fff0f0;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   font-family: 'Segoe UI', 'Arial', sans-serif;
-  color: #880e4f;
+  color: #8b0000;
 }
 
 #game-wrapper {
@@ -22,8 +22,8 @@ h1 {
   font-size: 2.5rem;
   margin-bottom: 20px;
   letter-spacing: 0.3em;
-  color: #ec407a;
-  text-shadow: 0 0 10px rgba(236, 64, 122, 0.5);
+  color: #ff6666;
+  text-shadow: 0 0 10px rgba(255, 102, 102, 0.5);
 }
 
 #game-container {
@@ -34,8 +34,8 @@ h1 {
 }
 
 #board {
-  border: 2px solid #f48fb1;
-  background: #fce4ec;
+  border: 2px solid #ffb3b3;
+  background: #fff0f0;
   display: block;
 }
 
@@ -46,16 +46,16 @@ h1 {
 
 #side-panel h3 {
   font-size: 0.95rem;
-  color: #ec407a;
+  color: #ff6666;
   margin-bottom: 6px;
-  border-bottom: 1px solid #f8bbd0;
+  border-bottom: 1px solid #ffcccc;
   padding-bottom: 4px;
 }
 
 #score-display {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #ad1457;
+  color: #cc0000;
   margin-bottom: 16px;
 }
 
@@ -64,14 +64,14 @@ h1 {
 }
 
 #preview {
-  border: 1px solid #f8bbd0;
-  background: #fce4ec;
+  border: 1px solid #ffcccc;
+  background: #fff0f0;
   display: block;
 }
 
 #controls-section p {
   font-size: 0.85rem;
-  color: #ad1457;
+  color: #cc0000;
   margin: 4px 0;
   line-height: 1.6;
 }
@@ -82,7 +82,7 @@ h1 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(236, 64, 122, 0.85);
+  background: rgba(255, 102, 102, 0.85);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -111,7 +111,7 @@ h1 {
   padding: 12px 36px;
   font-size: 1.1rem;
   background: #fff;
-  color: #ec407a;
+  color: #ff6666;
   border: none;
   border-radius: 25px;
   cursor: pointer;
@@ -120,5 +120,5 @@ h1 {
 }
 
 #restart-btn:hover {
-  background: #f8bbd0;
+  background: #ffcccc;
 }
