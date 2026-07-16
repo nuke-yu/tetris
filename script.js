@@ -32,6 +32,8 @@ const scoreDisplay = document.getElementById('score-display');
 const finalScoreSpan = document.getElementById('final-score');
 const gameOverOverlay = document.getElementById('game-over-overlay');
 const restartBtn = document.getElementById('restart-btn');
+const dogCanvas = document.getElementById('dog-canvas');
+const dogCtx = dogCanvas.getContext('2d');
 
 // ===== 游戏状态 =====
 let board = [];              // 二维数组，0=空，字符串=颜色
@@ -40,6 +42,20 @@ let nextPiece = null;
 let score = 0;
 let gameOver = false;
 let dropTimer = null;
+
+// ===== 小狗状态 =====
+const dog = {
+  y: 0,                // 当前 Y 位置（像素，相对于狗画布）
+  targetY: 0,          // 目标 Y 位置
+  jumping: false,      // 是否在跳跃
+  jumpTimer: 0,        // 跳跃动画计时
+  cheering: false,     // 是否在欢呼
+  cheerTimer: 0,       // 欢呼动画计时
+  blinkTimer: 0,       // 眨眼计时
+  isBlinking: false,   // 是否在眨眼
+  mouthOpen: false,    // 嘴巴张开（欢呼时）
+  tailWag: 0,          // 尾巴摆动相位
+};
 
 // ===== 工具函数 =====
 function createEmptyBoard() {
@@ -109,6 +125,8 @@ function lockPiece() {
       }
     }
   }
+  // 小狗跳跃
+  dogJump();
   clearFullRows();
   // 生成下一个方块
   currentPiece = spawnPiece();
@@ -133,6 +151,7 @@ function clearFullRows() {
   if (cleared > 0) {
     score += cleared * 100;
     updateScore();
+    dogCheer(); // 消除行时小狗欢呼
   }
 }
 
@@ -252,6 +271,10 @@ function draw() {
 
   // 绘制预览
   drawPreview();
+
+  // 绘制小狗
+  updateDogFollow();
+  drawDog();
 }
 
 function drawPreview() {
@@ -279,6 +302,235 @@ function updateScore() {
   scoreDisplay.textContent = score;
 }
 
+// ===== 小狗绘制 =====
+function drawDog() {
+  const w = dogCanvas.width;
+  const h = dogCanvas.height;
+  dogCtx.clearRect(0, 0, w, h);
+
+  // 更新小狗动画状态
+  const now = Date.now();
+
+  // 眨眼
+  if (dog.isBlinking) {
+    dog.blinkTimer -= 16;
+    if (dog.blinkTimer <= 0) {
+      dog.isBlinking = false;
+      dog.blinkTimer = 2000 + Math.random() * 3000;
+    }
+  } else {
+    dog.blinkTimer -= 16;
+    if (dog.blinkTimer <= 0) {
+      dog.isBlinking = true;
+      dog.blinkTimer = 150;
+    }
+  }
+
+  // 跳跃动画
+  if (dog.jumping) {
+    dog.jumpTimer -= 16;
+    if (dog.jumpTimer <= 0) {
+      dog.jumping = false;
+    }
+  }
+
+  // 欢呼动画
+  if (dog.cheering) {
+    dog.cheerTimer -= 16;
+    if (dog.cheerTimer <= 0) {
+      dog.cheering = false;
+      dog.mouthOpen = false;
+    }
+  }
+
+  // 尾巴摆动
+  dog.tailWag = (dog.tailWag + 0.08) % (Math.PI * 2);
+
+  // 平滑跟随目标 Y
+  dog.y += (dog.targetY - dog.y) * 0.15;
+
+  // 跳跃偏移
+  let jumpOffset = 0;
+  if (dog.jumping) {
+    const t = dog.jumpTimer / 400; // 0~1
+    jumpOffset = -Math.sin(t * Math.PI) * 40; // 跳起高度
+  }
+
+  const baseX = 60;
+  const baseY = dog.y + jumpOffset;
+
+  // ---- 绘制小狗 ----
+  dogCtx.save();
+
+  // 身体（椭圆）
+  dogCtx.fillStyle = '#d4a574';
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX, baseY + 20, 22, 18, 0, 0, Math.PI * 2);
+  dogCtx.fill();
+  dogCtx.strokeStyle = '#b8864e';
+  dogCtx.lineWidth = 1.5;
+  dogCtx.stroke();
+
+  // 肚子（浅色）
+  dogCtx.fillStyle = '#f0d5b0';
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX, baseY + 24, 14, 12, 0, 0, Math.PI * 2);
+  dogCtx.fill();
+
+  // 头（圆形）
+  dogCtx.fillStyle = '#d4a574';
+  dogCtx.beginPath();
+  dogCtx.arc(baseX, baseY - 8, 16, 0, Math.PI * 2);
+  dogCtx.fill();
+  dogCtx.strokeStyle = '#b8864e';
+  dogCtx.lineWidth = 1.5;
+  dogCtx.stroke();
+
+  // 耳朵（左）
+  dogCtx.fillStyle = '#c49464';
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX - 14, baseY - 16, 7, 12, -0.3, 0, Math.PI * 2);
+  dogCtx.fill();
+  dogCtx.strokeStyle = '#b8864e';
+  dogCtx.lineWidth = 1;
+  dogCtx.stroke();
+
+  // 耳朵（右）
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX + 14, baseY - 16, 7, 12, 0.3, 0, Math.PI * 2);
+  dogCtx.fill();
+  dogCtx.stroke();
+
+  // 眼睛
+  const eyeY = baseY - 11;
+  if (dog.isBlinking) {
+    // 闭眼 - 一条线
+    dogCtx.strokeStyle = '#5a3a1a';
+    dogCtx.lineWidth = 2;
+    dogCtx.beginPath();
+    dogCtx.moveTo(baseX - 6, eyeY);
+    dogCtx.lineTo(baseX - 2, eyeY);
+    dogCtx.stroke();
+    dogCtx.beginPath();
+    dogCtx.moveTo(baseX + 2, eyeY);
+    dogCtx.lineTo(baseX + 6, eyeY);
+    dogCtx.stroke();
+  } else {
+    // 睁眼
+    dogCtx.fillStyle = '#5a3a1a';
+    dogCtx.beginPath();
+    dogCtx.arc(baseX - 4, eyeY, 3, 0, Math.PI * 2);
+    dogCtx.fill();
+    dogCtx.beginPath();
+    dogCtx.arc(baseX + 4, eyeY, 3, 0, Math.PI * 2);
+    dogCtx.fill();
+    // 眼睛高光
+    dogCtx.fillStyle = '#fff';
+    dogCtx.beginPath();
+    dogCtx.arc(baseX - 3, eyeY - 1.5, 1.2, 0, Math.PI * 2);
+    dogCtx.fill();
+    dogCtx.beginPath();
+    dogCtx.arc(baseX + 5, eyeY - 1.5, 1.2, 0, Math.PI * 2);
+    dogCtx.fill();
+  }
+
+  // 鼻子
+  dogCtx.fillStyle = '#5a3a1a';
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX, baseY - 5, 3, 2.5, 0, 0, Math.PI * 2);
+  dogCtx.fill();
+
+  // 嘴巴
+  dogCtx.strokeStyle = '#5a3a1a';
+  dogCtx.lineWidth = 1.5;
+  if (dog.mouthOpen || dog.cheering) {
+    // 张嘴（欢呼）
+    dogCtx.fillStyle = '#e85d5d';
+    dogCtx.beginPath();
+    dogCtx.ellipse(baseX, baseY + 1, 4, 3, 0, 0, Math.PI * 2);
+    dogCtx.fill();
+    dogCtx.stroke();
+  } else {
+    // 微笑
+    dogCtx.beginPath();
+    dogCtx.arc(baseX, baseY - 1, 5, 0.1, Math.PI - 0.1);
+    dogCtx.stroke();
+  }
+
+  // 腮红
+  dogCtx.fillStyle = 'rgba(255, 150, 150, 0.4)';
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX - 10, baseY - 4, 4, 3, 0, 0, Math.PI * 2);
+  dogCtx.fill();
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX + 10, baseY - 4, 4, 3, 0, 0, Math.PI * 2);
+  dogCtx.fill();
+
+  // 前腿（左）
+  dogCtx.fillStyle = '#d4a574';
+  dogCtx.fillRect(baseX - 12, baseY + 28, 6, 16);
+  dogCtx.strokeStyle = '#b8864e';
+  dogCtx.lineWidth = 1;
+  dogCtx.strokeRect(baseX - 12, baseY + 28, 6, 16);
+  // 前腿（右）
+  dogCtx.fillRect(baseX + 6, baseY + 28, 6, 16);
+  dogCtx.strokeRect(baseX + 6, baseY + 28, 6, 16);
+
+  // 爪子
+  dogCtx.fillStyle = '#f0d5b0';
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX - 9, baseY + 44, 4, 3, 0, 0, Math.PI * 2);
+  dogCtx.fill();
+  dogCtx.beginPath();
+  dogCtx.ellipse(baseX + 9, baseY + 44, 4, 3, 0, 0, Math.PI * 2);
+  dogCtx.fill();
+
+  // 尾巴（摆动）
+  const tailAngle = Math.sin(dog.tailWag) * 0.5;
+  dogCtx.strokeStyle = '#c49464';
+  dogCtx.lineWidth = 5;
+  dogCtx.lineCap = 'round';
+  dogCtx.beginPath();
+  dogCtx.moveTo(baseX + 20, baseY + 10);
+  const tailEndX = baseX + 28 + Math.sin(dog.tailWag) * 8;
+  const tailEndY = baseY - 5 + Math.cos(dog.tailWag) * 5;
+  dogCtx.quadraticCurveTo(baseX + 26, baseY - 2, tailEndX, tailEndY);
+  dogCtx.stroke();
+
+  // 如果欢呼，显示 "加油！" 文字
+  if (dog.cheering) {
+    dogCtx.fillStyle = '#ec407a';
+    dogCtx.font = 'bold 18px "Segoe UI", sans-serif';
+    dogCtx.textAlign = 'center';
+    dogCtx.fillText('加油!', baseX, baseY - 35);
+  }
+
+  dogCtx.restore();
+}
+
+// 小狗跟随方块
+function updateDogFollow() {
+  if (currentPiece && !gameOver) {
+    // 方块在棋盘中的 Y 像素位置
+    const piecePixelY = currentPiece.y * BLOCK_SIZE;
+    // 映射到狗画布（狗画布高度 600，棋盘高度 600）
+    dog.targetY = piecePixelY;
+  }
+}
+
+// 小狗跳跃（方块落底时触发）
+function dogJump() {
+  dog.jumping = true;
+  dog.jumpTimer = 400;
+}
+
+// 小狗欢呼（消除行时触发）
+function dogCheer() {
+  dog.cheering = true;
+  dog.cheerTimer = 1200;
+  dog.mouthOpen = true;
+}
+
 // ===== Game Over =====
 function showGameOver() {
   finalScoreSpan.textContent = score;
@@ -286,6 +538,10 @@ function showGameOver() {
   if (dropTimer) {
     clearInterval(dropTimer);
     dropTimer = null;
+  }
+  if (window.dogAnimTimer) {
+    clearInterval(window.dogAnimTimer);
+    window.dogAnimTimer = null;
   }
 }
 
@@ -296,6 +552,13 @@ function resetGame() {
   gameOver = false;
   updateScore();
   gameOverOverlay.classList.add('hidden');
+
+  // 重置小狗
+  dog.y = 0;
+  dog.targetY = 0;
+  dog.jumping = false;
+  dog.cheering = false;
+  dog.blinkTimer = 2000 + Math.random() * 3000;
 
   nextPiece = randomPiece();
   currentPiece = spawnPiece();
@@ -308,6 +571,12 @@ function resetGame() {
       movePiece(0, 1);
     }
   }, DROP_INTERVAL);
+
+  // 小狗动画循环（独立刷新，保证尾巴摆动流畅）
+  if (window.dogAnimTimer) clearInterval(window.dogAnimTimer);
+  window.dogAnimTimer = setInterval(() => {
+    drawDog();
+  }, 30);
 
   draw();
 }

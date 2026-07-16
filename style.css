@@ -39,6 +39,19 @@ h1 {
   display: block;
 }
 
+#dog-panel {
+  width: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+#dog-canvas {
+  border: 1px solid #f8bbd0;
+  background: #fce4ec;
+  display: block;
+}
+
 #side-panel {
   width: 140px;
   text-align: left;
