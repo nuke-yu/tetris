@@ -204,7 +204,7 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // 绘制网格线
-  ctx.strokeStyle = '#1a1a3e';
+  ctx.strokeStyle = '#2a1a1a';
   ctx.lineWidth = 0.5;
   for (let c = 0; c <= COLS; c++) {
     ctx.beginPath();
