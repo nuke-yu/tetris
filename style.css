@@ -5,13 +5,13 @@
 }
 
 body {
-  background: #2e2e1a;
+  background: #fce4ec;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   font-family: 'Segoe UI', 'Arial', sans-serif;
-  color: #f0f0d0;
+  color: #880e4f;
 }
 
 #game-wrapper {
@@ -22,8 +22,8 @@ h1 {
   font-size: 2.5rem;
   margin-bottom: 20px;
   letter-spacing: 0.3em;
-  color: #f0e68c;
-  text-shadow: 0 0 10px rgba(240, 230, 140, 0.5);
+  color: #ec407a;
+  text-shadow: 0 0 10px rgba(236, 64, 122, 0.5);
 }
 
 #game-container {
@@ -34,8 +34,8 @@ h1 {
 }
 
 #board {
-  border: 2px solid #f0e68c;
-  background: #1a1a0f;
+  border: 2px solid #f48fb1;
+  background: #fce4ec;
   display: block;
 }
 
@@ -46,16 +46,16 @@ h1 {
 
 #side-panel h3 {
   font-size: 0.95rem;
-  color: #f0e68c;
+  color: #ec407a;
   margin-bottom: 6px;
-  border-bottom: 1px solid #555533;
+  border-bottom: 1px solid #f8bbd0;
   padding-bottom: 4px;
 }
 
 #score-display {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #fff;
+  color: #ad1457;
   margin-bottom: 16px;
 }
 
@@ -64,14 +64,14 @@ h1 {
 }
 
 #preview {
-  border: 1px solid #555533;
-  background: #1a1a0f;
+  border: 1px solid #f8bbd0;
+  background: #fce4ec;
   display: block;
 }
 
 #controls-section p {
   font-size: 0.85rem;
-  color: #888;
+  color: #ad1457;
   margin: 4px 0;
   line-height: 1.6;
 }
@@ -82,7 +82,7 @@ h1 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(236, 64, 122, 0.85);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -96,27 +96,29 @@ h1 {
 
 #game-over-overlay h2 {
   font-size: 3rem;
-  color: #f0e68c;
+  color: #fff;
   margin-bottom: 16px;
-  text-shadow: 0 0 20px rgba(240, 230, 140, 0.6);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
 }
 
 #game-over-overlay p {
   font-size: 1.5rem;
   margin-bottom: 24px;
+  color: #fff;
 }
 
 #restart-btn {
   padding: 12px 36px;
   font-size: 1.1rem;
-  background: #f0e68c;
-  color: #333;
+  background: #fff;
+  color: #ec407a;
   border: none;
-  border-radius: 6px;
+  border-radius: 25px;
   cursor: pointer;
   transition: background 0.2s;
+  font-weight: bold;
 }
 
 #restart-btn:hover {
-  background: #d4c76a;
+  background: #f8bbd0;
 }

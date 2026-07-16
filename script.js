@@ -5,22 +5,22 @@ const BLOCK_SIZE = 30;       // 主棋盘格子像素
 const PREVIEW_BLOCK = 24;    // 预览区格子像素
 const DROP_INTERVAL = 500;   // 毫秒
 
-// ===== 7 种标准方块 =====
+// ===== 7 种标准方块（少女粉配色）=====
 const SHAPES = [
   // I
-  { blocks: [[1,1,1,1]], color: '#00f0f0' },
+  { blocks: [[1,1,1,1]], color: '#f48fb1' },
   // O
-  { blocks: [[1,1],[1,1]], color: '#f0f000' },
+  { blocks: [[1,1],[1,1]], color: '#f06292' },
   // T
-  { blocks: [[0,1,0],[1,1,1]], color: '#a000f0' },
+  { blocks: [[0,1,0],[1,1,1]], color: '#ec407a' },
   // S
-  { blocks: [[0,1,1],[1,1,0]], color: '#00f000' },
+  { blocks: [[0,1,1],[1,1,0]], color: '#f8bbd0' },
   // Z
-  { blocks: [[1,1,0],[0,1,1]], color: '#f00000' },
+  { blocks: [[1,1,0],[0,1,1]], color: '#e91e63' },
   // J
-  { blocks: [[1,0,0],[1,1,1]], color: '#0000f0' },
+  { blocks: [[1,0,0],[1,1,1]], color: '#c2185b' },
   // L
-  { blocks: [[0,0,1],[1,1,1]], color: '#f0a000' },
+  { blocks: [[0,0,1],[1,1,1]], color: '#ad1457' },
 ];
 
 // ===== DOM 引用 =====
@@ -204,7 +204,7 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // 绘制网格线
-  ctx.strokeStyle = '#2a2a1a';
+  ctx.strokeStyle = '#f8bbd0';
   ctx.lineWidth = 0.5;
   for (let c = 0; c <= COLS; c++) {
     ctx.beginPath();
