@@ -362,40 +362,40 @@ function drawDog() {
   // ---- 绘制小狗 ----
   dogCtx.save();
 
-  // 身体（椭圆）
-  dogCtx.fillStyle = '#d4a574';
+  // 身体（椭圆）- 翠绿色
+  dogCtx.fillStyle = '#2ecc71';
   dogCtx.beginPath();
   dogCtx.ellipse(baseX, baseY + 20, 22, 18, 0, 0, Math.PI * 2);
   dogCtx.fill();
-  dogCtx.strokeStyle = '#b8864e';
+  dogCtx.strokeStyle = '#1a8a4a';
   dogCtx.lineWidth = 1.5;
   dogCtx.stroke();
 
-  // 肚子（浅色）
-  dogCtx.fillStyle = '#f0d5b0';
+  // 肚子（浅翠绿）
+  dogCtx.fillStyle = '#a8e6c1';
   dogCtx.beginPath();
   dogCtx.ellipse(baseX, baseY + 24, 14, 12, 0, 0, Math.PI * 2);
   dogCtx.fill();
 
-  // 头（圆形）
-  dogCtx.fillStyle = '#d4a574';
+  // 头（圆形）- 翠绿色
+  dogCtx.fillStyle = '#2ecc71';
   dogCtx.beginPath();
   dogCtx.arc(baseX, baseY - 8, 16, 0, Math.PI * 2);
   dogCtx.fill();
-  dogCtx.strokeStyle = '#b8864e';
+  dogCtx.strokeStyle = '#1a8a4a';
   dogCtx.lineWidth = 1.5;
   dogCtx.stroke();
 
-  // 耳朵（左）
-  dogCtx.fillStyle = '#c49464';
+  // 耳朵（左）- 深翠绿
+  dogCtx.fillStyle = '#27ae60';
   dogCtx.beginPath();
   dogCtx.ellipse(baseX - 14, baseY - 16, 7, 12, -0.3, 0, Math.PI * 2);
   dogCtx.fill();
-  dogCtx.strokeStyle = '#b8864e';
+  dogCtx.strokeStyle = '#1a8a4a';
   dogCtx.lineWidth = 1;
   dogCtx.stroke();
 
-  // 耳朵（右）
+  // 耳朵（右）- 深翠绿
   dogCtx.beginPath();
   dogCtx.ellipse(baseX + 14, baseY - 16, 7, 12, 0.3, 0, Math.PI * 2);
   dogCtx.fill();
@@ -466,18 +466,18 @@ function drawDog() {
   dogCtx.ellipse(baseX + 10, baseY - 4, 4, 3, 0, 0, Math.PI * 2);
   dogCtx.fill();
 
-  // 前腿（左）
-  dogCtx.fillStyle = '#d4a574';
+  // 前腿（左）- 翠绿色
+  dogCtx.fillStyle = '#2ecc71';
   dogCtx.fillRect(baseX - 12, baseY + 28, 6, 16);
-  dogCtx.strokeStyle = '#b8864e';
+  dogCtx.strokeStyle = '#1a8a4a';
   dogCtx.lineWidth = 1;
   dogCtx.strokeRect(baseX - 12, baseY + 28, 6, 16);
   // 前腿（右）
   dogCtx.fillRect(baseX + 6, baseY + 28, 6, 16);
   dogCtx.strokeRect(baseX + 6, baseY + 28, 6, 16);
 
-  // 爪子
-  dogCtx.fillStyle = '#f0d5b0';
+  // 爪子 - 浅翠绿
+  dogCtx.fillStyle = '#a8e6c1';
   dogCtx.beginPath();
   dogCtx.ellipse(baseX - 9, baseY + 44, 4, 3, 0, 0, Math.PI * 2);
   dogCtx.fill();
@@ -485,9 +485,9 @@ function drawDog() {
   dogCtx.ellipse(baseX + 9, baseY + 44, 4, 3, 0, 0, Math.PI * 2);
   dogCtx.fill();
 
-  // 尾巴（摆动）
+  // 尾巴（摆动）- 翠绿色
   const tailAngle = Math.sin(dog.tailWag) * 0.5;
-  dogCtx.strokeStyle = '#c49464';
+  dogCtx.strokeStyle = '#27ae60';
   dogCtx.lineWidth = 5;
   dogCtx.lineCap = 'round';
   dogCtx.beginPath();
