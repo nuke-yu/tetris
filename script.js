@@ -34,6 +34,8 @@ const gameOverOverlay = document.getElementById('game-over-overlay');
 const restartBtn = document.getElementById('restart-btn');
 const dogCanvas = document.getElementById('dog-canvas');
 const dogCtx = dogCanvas.getContext('2d');
+const catCanvas = document.getElementById('cat-canvas');
+const catCtx = catCanvas.getContext('2d');
 
 // ===== 游戏状态 =====
 let board = [];              // 二维数组，0=空，字符串=颜色
@@ -55,6 +57,20 @@ const dog = {
   isBlinking: false,   // 是否在眨眼
   mouthOpen: false,    // 嘴巴张开（欢呼时）
   tailWag: 0,          // 尾巴摆动相位
+};
+
+// ===== 小猫状态 =====
+const cat = {
+  y: 0,
+  targetY: 0,
+  jumping: false,
+  jumpTimer: 0,
+  cheering: false,
+  cheerTimer: 0,
+  blinkTimer: 0,
+  isBlinking: false,
+  mouthOpen: false,
+  tailWag: 0,
 };
 
 // ===== 工具函数 =====
@@ -127,6 +143,8 @@ function lockPiece() {
   }
   // 小狗跳跃
   dogJump();
+  // 小猫跳跃
+  catJump();
   clearFullRows();
   // 生成下一个方块
   currentPiece = spawnPiece();
@@ -152,6 +170,7 @@ function clearFullRows() {
     score += cleared * 100;
     updateScore();
     dogCheer(); // 消除行时小狗欢呼
+    catCheer(); // 消除行时小猫欢呼
   }
 }
 
@@ -275,6 +294,10 @@ function draw() {
   // 绘制小狗
   updateDogFollow();
   drawDog();
+
+  // 绘制小猫
+  updateCatFollow();
+  drawCat();
 }
 
 function drawPreview() {
@@ -508,6 +531,298 @@ function drawDog() {
   dogCtx.restore();
 }
 
+// ===== 小猫绘制（粉色连衣裙）=====
+function drawCat() {
+  const w = catCanvas.width;
+  const h = catCanvas.height;
+  catCtx.clearRect(0, 0, w, h);
+
+  // 更新小猫动画状态
+  const now = Date.now();
+
+  // 眨眼
+  if (cat.isBlinking) {
+    cat.blinkTimer -= 16;
+    if (cat.blinkTimer <= 0) {
+      cat.isBlinking = false;
+      cat.blinkTimer = 2000 + Math.random() * 3000;
+    }
+  } else {
+    cat.blinkTimer -= 16;
+    if (cat.blinkTimer <= 0) {
+      cat.isBlinking = true;
+      cat.blinkTimer = 150;
+    }
+  }
+
+  // 跳跃动画
+  if (cat.jumping) {
+    cat.jumpTimer -= 16;
+    if (cat.jumpTimer <= 0) {
+      cat.jumping = false;
+    }
+  }
+
+  // 欢呼动画
+  if (cat.cheering) {
+    cat.cheerTimer -= 16;
+    if (cat.cheerTimer <= 0) {
+      cat.cheering = false;
+      cat.mouthOpen = false;
+    }
+  }
+
+  // 尾巴摆动
+  cat.tailWag = (cat.tailWag + 0.08) % (Math.PI * 2);
+
+  // 平滑跟随目标 Y
+  cat.y += (cat.targetY - cat.y) * 0.15;
+
+  // 跳跃偏移
+  let jumpOffset = 0;
+  if (cat.jumping) {
+    const t = cat.jumpTimer / 400;
+    jumpOffset = -Math.sin(t * Math.PI) * 40;
+  }
+
+  const baseX = 60;
+  const baseY = cat.y + jumpOffset;
+
+  // ---- 绘制小猫 ----
+  catCtx.save();
+
+  // 身体（椭圆）- 橙色
+  catCtx.fillStyle = '#ff9800';
+  catCtx.beginPath();
+  catCtx.ellipse(baseX, baseY + 20, 20, 17, 0, 0, Math.PI * 2);
+  catCtx.fill();
+  catCtx.strokeStyle = '#e65100';
+  catCtx.lineWidth = 1.5;
+  catCtx.stroke();
+
+  // 粉色连衣裙（ping dress）
+  catCtx.fillStyle = '#f48fb1';
+  catCtx.beginPath();
+  catCtx.ellipse(baseX, baseY + 28, 22, 14, 0, 0, Math.PI * 2);
+  catCtx.fill();
+  catCtx.strokeStyle = '#ec407a';
+  catCtx.lineWidth = 1.5;
+  catCtx.stroke();
+
+  // 连衣裙花边
+  catCtx.fillStyle = '#f8bbd0';
+  catCtx.beginPath();
+  catCtx.ellipse(baseX, baseY + 34, 18, 6, 0, 0, Math.PI * 2);
+  catCtx.fill();
+  catCtx.strokeStyle = '#ec407a';
+  catCtx.lineWidth = 1;
+  catCtx.stroke();
+
+  // 连衣裙领口装饰
+  catCtx.fillStyle = '#fce4ec';
+  catCtx.beginPath();
+  catCtx.arc(baseX - 5, baseY + 18, 3, 0, Math.PI * 2);
+  catCtx.fill();
+  catCtx.beginPath();
+  catCtx.arc(baseX + 5, baseY + 18, 3, 0, Math.PI * 2);
+  catCtx.fill();
+
+  // 头（圆形）- 橙色
+  catCtx.fillStyle = '#ff9800';
+  catCtx.beginPath();
+  catCtx.arc(baseX, baseY - 8, 15, 0, Math.PI * 2);
+  catCtx.fill();
+  catCtx.strokeStyle = '#e65100';
+  catCtx.lineWidth = 1.5;
+  catCtx.stroke();
+
+  // 耳朵（左）- 三角形猫耳
+  catCtx.fillStyle = '#ff9800';
+  catCtx.beginPath();
+  catCtx.moveTo(baseX - 14, baseY - 14);
+  catCtx.lineTo(baseX - 8, baseY - 28);
+  catCtx.lineTo(baseX - 2, baseY - 14);
+  catCtx.closePath();
+  catCtx.fill();
+  catCtx.strokeStyle = '#e65100';
+  catCtx.lineWidth = 1;
+  catCtx.stroke();
+  // 内耳（左）- 粉色
+  catCtx.fillStyle = '#f8bbd0';
+  catCtx.beginPath();
+  catCtx.moveTo(baseX - 12, baseY - 15);
+  catCtx.lineTo(baseX - 8, baseY - 24);
+  catCtx.lineTo(baseX - 4, baseY - 15);
+  catCtx.closePath();
+  catCtx.fill();
+
+  // 耳朵（右）- 三角形猫耳
+  catCtx.fillStyle = '#ff9800';
+  catCtx.beginPath();
+  catCtx.moveTo(baseX + 2, baseY - 14);
+  catCtx.lineTo(baseX + 8, baseY - 28);
+  catCtx.lineTo(baseX + 14, baseY - 14);
+  catCtx.closePath();
+  catCtx.fill();
+  catCtx.strokeStyle = '#e65100';
+  catCtx.lineWidth = 1;
+  catCtx.stroke();
+  // 内耳（右）- 粉色
+  catCtx.fillStyle = '#f8bbd0';
+  catCtx.beginPath();
+  catCtx.moveTo(baseX + 4, baseY - 15);
+  catCtx.lineTo(baseX + 8, baseY - 24);
+  catCtx.lineTo(baseX + 12, baseY - 15);
+  catCtx.closePath();
+  catCtx.fill();
+
+  // 眼睛
+  const eyeY = baseY - 11;
+  if (cat.isBlinking) {
+    // 闭眼
+    catCtx.strokeStyle = '#5a3a1a';
+    catCtx.lineWidth = 2;
+    catCtx.beginPath();
+    catCtx.moveTo(baseX - 6, eyeY);
+    catCtx.lineTo(baseX - 2, eyeY);
+    catCtx.stroke();
+    catCtx.beginPath();
+    catCtx.moveTo(baseX + 2, eyeY);
+    catCtx.lineTo(baseX + 6, eyeY);
+    catCtx.stroke();
+  } else {
+    // 睁眼（猫眼 - 绿色）
+    catCtx.fillStyle = '#4caf50';
+    catCtx.beginPath();
+    catCtx.ellipse(baseX - 4, eyeY, 3.5, 4, 0, 0, Math.PI * 2);
+    catCtx.fill();
+    catCtx.beginPath();
+    catCtx.ellipse(baseX + 4, eyeY, 3.5, 4, 0, 0, Math.PI * 2);
+    catCtx.fill();
+    // 瞳孔（竖线）
+    catCtx.fillStyle = '#1a1a1a';
+    catCtx.beginPath();
+    catCtx.ellipse(baseX - 4, eyeY, 1.2, 3, 0, 0, Math.PI * 2);
+    catCtx.fill();
+    catCtx.beginPath();
+    catCtx.ellipse(baseX + 4, eyeY, 1.2, 3, 0, 0, Math.PI * 2);
+    catCtx.fill();
+    // 眼睛高光
+    catCtx.fillStyle = '#fff';
+    catCtx.beginPath();
+    catCtx.arc(baseX - 3, eyeY - 2, 1.2, 0, Math.PI * 2);
+    catCtx.fill();
+    catCtx.beginPath();
+    catCtx.arc(baseX + 5, eyeY - 2, 1.2, 0, Math.PI * 2);
+    catCtx.fill();
+  }
+
+  // 鼻子（小粉色倒三角）
+  catCtx.fillStyle = '#f48fb1';
+  catCtx.beginPath();
+  catCtx.moveTo(baseX, baseY - 6);
+  catCtx.lineTo(baseX - 2.5, baseY - 3);
+  catCtx.lineTo(baseX + 2.5, baseY - 3);
+  catCtx.closePath();
+  catCtx.fill();
+
+  // 胡须（左）
+  catCtx.strokeStyle = '#9e9e9e';
+  catCtx.lineWidth = 1;
+  catCtx.beginPath();
+  catCtx.moveTo(baseX - 4, baseY - 5);
+  catCtx.lineTo(baseX - 18, baseY - 8);
+  catCtx.stroke();
+  catCtx.beginPath();
+  catCtx.moveTo(baseX - 4, baseY - 3);
+  catCtx.lineTo(baseX - 18, baseY - 3);
+  catCtx.stroke();
+  catCtx.beginPath();
+  catCtx.moveTo(baseX - 4, baseY - 1);
+  catCtx.lineTo(baseX - 18, baseY + 2);
+  catCtx.stroke();
+
+  // 胡须（右）
+  catCtx.beginPath();
+  catCtx.moveTo(baseX + 4, baseY - 5);
+  catCtx.lineTo(baseX + 18, baseY - 8);
+  catCtx.stroke();
+  catCtx.beginPath();
+  catCtx.moveTo(baseX + 4, baseY - 3);
+  catCtx.lineTo(baseX + 18, baseY - 3);
+  catCtx.stroke();
+  catCtx.beginPath();
+  catCtx.moveTo(baseX + 4, baseY - 1);
+  catCtx.lineTo(baseX + 18, baseY + 2);
+  catCtx.stroke();
+
+  // 嘴巴
+  catCtx.strokeStyle = '#5a3a1a';
+  catCtx.lineWidth = 1.5;
+  if (cat.mouthOpen || cat.cheering) {
+    // 张嘴（欢呼）
+    catCtx.fillStyle = '#e85d5d';
+    catCtx.beginPath();
+    catCtx.ellipse(baseX, baseY + 1, 4, 3, 0, 0, Math.PI * 2);
+    catCtx.fill();
+    catCtx.stroke();
+  } else {
+    // 微笑
+    catCtx.beginPath();
+    catCtx.arc(baseX, baseY - 1, 4, 0.1, Math.PI - 0.1);
+    catCtx.stroke();
+  }
+
+  // 腮红
+  catCtx.fillStyle = 'rgba(255, 150, 150, 0.4)';
+  catCtx.beginPath();
+  catCtx.ellipse(baseX - 10, baseY - 4, 4, 3, 0, 0, Math.PI * 2);
+  catCtx.fill();
+  catCtx.beginPath();
+  catCtx.ellipse(baseX + 10, baseY - 4, 4, 3, 0, 0, Math.PI * 2);
+  catCtx.fill();
+
+  // 前腿（左）- 橙色
+  catCtx.fillStyle = '#ff9800';
+  catCtx.fillRect(baseX - 12, baseY + 28, 5, 14);
+  catCtx.strokeStyle = '#e65100';
+  catCtx.lineWidth = 1;
+  catCtx.strokeRect(baseX - 12, baseY + 28, 5, 14);
+  // 前腿（右）
+  catCtx.fillRect(baseX + 7, baseY + 28, 5, 14);
+  catCtx.strokeRect(baseX + 7, baseY + 28, 5, 14);
+
+  // 爪子 - 浅粉色
+  catCtx.fillStyle = '#fce4ec';
+  catCtx.beginPath();
+  catCtx.ellipse(baseX - 9, baseY + 42, 4, 3, 0, 0, Math.PI * 2);
+  catCtx.fill();
+  catCtx.beginPath();
+  catCtx.ellipse(baseX + 9, baseY + 42, 4, 3, 0, 0, Math.PI * 2);
+  catCtx.fill();
+
+  // 尾巴（摆动）- 橙色
+  catCtx.strokeStyle = '#ff9800';
+  catCtx.lineWidth = 5;
+  catCtx.lineCap = 'round';
+  catCtx.beginPath();
+  catCtx.moveTo(baseX - 20, baseY + 10);
+  const tailEndX = baseX - 28 + Math.sin(cat.tailWag) * 8;
+  const tailEndY = baseY - 5 + Math.cos(cat.tailWag) * 5;
+  catCtx.quadraticCurveTo(baseX - 26, baseY - 2, tailEndX, tailEndY);
+  catCtx.stroke();
+
+  // 如果欢呼，显示 "喵！" 文字
+  if (cat.cheering) {
+    catCtx.fillStyle = '#ec407a';
+    catCtx.font = 'bold 18px "Segoe UI", sans-serif';
+    catCtx.textAlign = 'center';
+    catCtx.fillText('喵!', baseX, baseY - 35);
+  }
+
+  catCtx.restore();
+}
+
 // 小狗跟随方块
 function updateDogFollow() {
   if (currentPiece && !gameOver) {
@@ -529,6 +844,27 @@ function dogCheer() {
   dog.cheering = true;
   dog.cheerTimer = 1200;
   dog.mouthOpen = true;
+}
+
+// ===== 小猫跟随方块 =====
+function updateCatFollow() {
+  if (currentPiece && !gameOver) {
+    const piecePixelY = currentPiece.y * BLOCK_SIZE;
+    cat.targetY = piecePixelY;
+  }
+}
+
+// 小猫跳跃（方块落底时触发）
+function catJump() {
+  cat.jumping = true;
+  cat.jumpTimer = 400;
+}
+
+// 小猫欢呼（消除行时触发）
+function catCheer() {
+  cat.cheering = true;
+  cat.cheerTimer = 1200;
+  cat.mouthOpen = true;
 }
 
 // ===== Game Over =====
@@ -560,6 +896,13 @@ function resetGame() {
   dog.cheering = false;
   dog.blinkTimer = 2000 + Math.random() * 3000;
 
+  // 重置小猫
+  cat.y = 0;
+  cat.targetY = 0;
+  cat.jumping = false;
+  cat.cheering = false;
+  cat.blinkTimer = 2000 + Math.random() * 3000;
+
   nextPiece = randomPiece();
   currentPiece = spawnPiece();
 
@@ -576,6 +919,7 @@ function resetGame() {
   if (window.dogAnimTimer) clearInterval(window.dogAnimTimer);
   window.dogAnimTimer = setInterval(() => {
     drawDog();
+    drawCat();
   }, 30);
 
   draw();

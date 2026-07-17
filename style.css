@@ -52,6 +52,19 @@ h1 {
   display: block;
 }
 
+#cat-panel {
+  width: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+#cat-canvas {
+  border: 1px solid #c8e6c9;
+  background: #e8f5e9;
+  display: block;
+}
+
 #side-panel {
   width: 140px;
   text-align: left;
